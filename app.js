@@ -1,24 +1,32 @@
 const express = require('express');
 const app = express();
+const logger = require('./logger');
+const authorize = require('./authorize');
+const morgan = require('morgan');//third party
 
 // req=> middleware => res
+//app.use(logger)//instead of placing in each app.get/app.out.etc
+//app.use('/api',logger)//it can be applied to only specific routes
 
-const logger = (req,res,next)=>{//middleware
-    const method = req.method;
-    const url = req.url;
-    const time = new Date().getFullYear();
-    console.log(method,url,time);
-    //res.send('Testing')//to terminate
-    next(); //passing to the next function
-}
+//app.use([logger, authorize])//you can place multiple middlewares by using an array of middlewares
+app.use(morgan('tiny'))
+//app.use(logger)
+//app.use(express.static('./public'))
 
-app.get('/', logger,(req, res)=>{
-   
+app.get('/',(req, res)=>{
     res.send('Home')
 })
-app.get('/about',logger,(req, res)=>{
+app.get('/about',(req, res)=>{
     res.send('About')
 })
+app.get('/api/products',(req, res)=>{
+    res.send('Api Products')
+})
+app.get('/api/items',authorize, (req, res)=>{
+    console.log(req.user)
+    res.send('Api items')
+})
+
 
 
 app.listen(5000,()=>{
