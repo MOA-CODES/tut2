@@ -1,63 +1,21 @@
 const express = require('express');
 const router = express.Router();
-
-
-let {people} = require('../data')
-
+const peopleController = require('../controllers/people');
   
- 
-router.get('/', (req, res) => {
-    res.status(200).json({success:true,data:people});
-})
+ //1ST FLAVOUR OF SETTING UP ROUTES
+// router.get('/', peopleController.getPeople)
 
-router.post('/', (req, res) => {
-    const {name} = req.body;
-    if(!name){
-        return res.status(400).json({success:false, msg:'please provide name value'})
-    }
-    return res.status(201).json({success:true,person:name })
-})
+// router.post('/', peopleController.createPerson )
 
-router.post('/postman',(req,res)=>{
-    const {name} = req.body;
-    if(!name){
-        return res.status(400).json({success:false, msg:'please provide name value'})
-    }
-    return res.status(201).json({success:true,data:[...people, name] })
+// router.post('/postman', peopleController.createPersonPostman )
 
-})
+// router.put('/:id', peopleController.UpdatePerson )
 
-router.put('/:id', (req, res) => {
-    const {id} = req.params;
-    const {name} = req.body;
+// router.delete('/:id', peopleController.DeletePerson )
 
-    const person = people.find((person)=> person.id === Number(id))
-
-    if(!person){
-        return res.status(404).json({success:false, msg:`${id} not found`})
-    }
-
-    const newPeople = people.map((person)=> {
-        if(person.id === Number(id)){
-            person.name = name
-        }
-        return person
-    })
-    return res.status(200).json({success:true, data:newPeople})
-})
-
-router.delete('/:id', (req,res)=>{
-    const {id} = req.params;
-
-    const person = people.find((person)=> person.id === Number(id))
-    if(!person){
-        return res.status(404).json({success:false, msg:`${id} not found`})
-    }
-
-    const newPeople = people.filter((person)=> person.id !== Number(id))
-
-    return res.status(200).json({success:true, data:newPeople})
-
-})
+//second flavour - chaining
+router.route('/').get(peopleController.getPeople).post(peopleController.createPerson)
+router.route('/postman').post(peopleController.createPersonPostman)
+router.route('/:id').put(peopleController.UpdatePerson).delete(peopleController.DeletePerson)
 
 module.exports = router
